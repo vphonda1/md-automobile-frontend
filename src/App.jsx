@@ -42,6 +42,8 @@ const FeedbackPage = lazy(() => import('./pages/FeedbackPage'));
 const ServiceAppointmentsPage = lazy(() => import('./pages/ServiceAppointmentsPage'));
 const PriceListPage = lazy(() => import('./pages/PriceListPage'));
 const TaxInvoicePage = lazy(() => import('./pages/TaxInvoicePage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+
 
 // DEFENSIVE: Don't rely on context shape, read from localStorage too
 function getUserSafe() {
