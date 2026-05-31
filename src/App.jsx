@@ -162,6 +162,7 @@ function AppShell() {
           <Route path="/manager" element={<PrivateRoute requireManager><ManagerView /></PrivateRoute>} />
           <Route path="/settings" element={<PrivateRoute requireAdmin><SettingsPage /></PrivateRoute>} />
           <Route path="/change-password" element={<PrivateRoute><ChangePassword /></PrivateRoute>} />
+          <Route path="/login" element={<PrivateRoute><login /></PrivateRoute>} />
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
