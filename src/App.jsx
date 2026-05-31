@@ -40,6 +40,7 @@ const WarrantyReplacementPage = lazy(() => import('./pages/WarrantyReplacementPa
 const TestRidesPage = lazy(() => import('./pages/TestRidesPage'));
 const FeedbackPage = lazy(() => import('./pages/FeedbackPage'));
 const ServiceAppointmentsPage = lazy(() => import('./pages/ServiceAppointmentsPage'));
+const PriceListPage = lazy(() => import('./pages/PriceListPage'));
 
 function Loading() {
   return (
@@ -108,6 +109,7 @@ function AppShell() {
             <Route path="/feedback" element={<PrivateRoute><FeedbackPage /></PrivateRoute>} />
             <Route path="/appointments" element={<PrivateRoute><ServiceAppointmentsPage /></PrivateRoute>} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/pricelist" element={<PrivateRoute><PriceListPage /></PrivateRoute>} />
           </Routes>
         </Suspense>
       </main>
