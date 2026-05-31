@@ -31,6 +31,7 @@ export default function Navbar({ user }) {
         { to: '/analytics', icon: BarChart3, label: 'Analytics' },
         { to: '/calendar', icon: Calendar, label: 'Calendar' }
         { to: '/pricelist', icon: Receipt, label: '💰 Price List' },
+        { to: '/tax-invoice', icon: FileText, label: '🧾 Tax Invoice' },
       ]
     },
     {
