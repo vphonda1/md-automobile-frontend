@@ -41,6 +41,7 @@ const TestRidesPage = lazy(() => import('./pages/TestRidesPage'));
 const FeedbackPage = lazy(() => import('./pages/FeedbackPage'));
 const ServiceAppointmentsPage = lazy(() => import('./pages/ServiceAppointmentsPage'));
 const PriceListPage = lazy(() => import('./pages/PriceListPage'));
+const TaxInvoicePage = lazy(() => import('./pages/TaxInvoicePage'));
 
 function Loading() {
   return (
@@ -110,6 +111,7 @@ function AppShell() {
             <Route path="/appointments" element={<PrivateRoute><ServiceAppointmentsPage /></PrivateRoute>} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
             <Route path="/pricelist" element={<PrivateRoute><PriceListPage /></PrivateRoute>} />
+            <Route path="/tax-invoice" element={<PrivateRoute><TaxInvoicePage /></PrivateRoute>} />
           </Routes>
         </Suspense>
       </main>
