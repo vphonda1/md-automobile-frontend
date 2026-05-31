@@ -30,6 +30,7 @@ export default function Navbar({ user }) {
         { to: '/dashboard', icon: Home, label: 'Dashboard' },
         { to: '/analytics', icon: BarChart3, label: 'Analytics' },
         { to: '/calendar', icon: Calendar, label: 'Calendar' }
+        { to: '/pricelist', icon: Receipt, label: '💰 Price List' },
       ]
     },
     {
