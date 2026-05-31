@@ -1,117 +1,132 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Mail, Lock, Loader, UserPlus } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { api, MD_CONFIG } from '../utils/apiConfig';
+
+const BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) || 'https://md-automobile-backend.onrender.com';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
-  const [form, setForm] = useState({ identifier: '', password: '' });
-  const [loading, setLoading] = useState(false);
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [seeding, setSeeding] = useState(false);
 
-  const handleSubmit = async () => {
-    if (!form.identifier || !form.password) {
-      setError('Username और password ज़रूरी हैं');
+  const handleLogin = async (e) => {
+    if (e?.preventDefault) e.preventDefault();
+    if (!identifier || !password) {
+      setError('Username और password दोनों ज़रूरी हैं');
       return;
     }
-    setLoading(true);
     setError('');
+    setLoading(true);
     try {
-      await login(form.identifier, form.password);
-      navigate('/dashboard');
+      const res = await fetch(`${BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: identifier.trim(), password })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error || `Login failed (HTTP ${res.status})`);
+        return;
+      }
+      // Save user
+      try { localStorage.setItem('md_user', JSON.stringify(data.user || {})); }
+      catch (e) {}
+      // Hard reload to ensure auth context picks up new user
+      window.location.href = '/dashboard';
     } catch (err) {
-      setError(err.message || 'Login failed');
+      setError('Network error: ' + (err.message || 'unknown') + '\n(Backend Render पर sleeping हो सकता है, 30 sec wait करके try करें)');
     } finally {
       setLoading(false);
     }
   };
 
-  // First-time setup: creates default admin if no users exist
-  const handleSeedAdmin = async () => {
+  const seedAdmin = async () => {
     setSeeding(true);
+    setError('');
     try {
-      const res = await api.get('/api/auth/seed-admin');
-      if (res.success) {
-        alert(`✅ Default admin बना दिया!\n\nUsername: ${res.credentials.username}\nPassword: ${res.credentials.password}\n\n⚠️ Login करते ही password बदल दें!`);
-        setForm({ identifier: res.credentials.username, password: res.credentials.password });
+      const res = await fetch(`${BASE_URL}/api/auth/seed-admin`);
+      const data = await res.json().catch(() => ({}));
+      if (data.success) {
+        alert('✅ Default admin बना दिया!\nUsername: admin\nPassword: admin123');
+        setIdentifier('admin');
+        setPassword('admin123');
       } else {
-        alert('ℹ️ ' + res.message);
+        alert(data.message || 'Already seeded — पहले से user exist करता है');
       }
     } catch (err) {
-      alert('❌ ' + err.message);
+      setError('Seed error: ' + (err.message || 'unknown'));
     } finally {
       setSeeding(false);
     }
   };
 
+  const S = {
+    page: { minHeight: '100vh', background: '#020617', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' },
+    wrap: { maxWidth: '400px', width: '100%' },
+    logo: { width: '80px', height: '80px', background: '#16a34a', borderRadius: '16px', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', color: 'white' },
+    title: { color: '#16a34a', fontSize: '28px', fontWeight: 'bold', margin: 0, textAlign: 'center' },
+    sub: { color: '#94a3b8', margin: '4px 0 24px', textAlign: 'center', fontSize: '13px' },
+    card: { background: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px', padding: '24px' },
+    h2: { color: 'white', marginTop: 0, marginBottom: '16px' },
+    errBox: { background: 'rgba(127, 29, 29, 0.3)', border: '1px solid #7f1d1d', color: '#fca5a5', padding: '10px', borderRadius: '8px', marginBottom: '16px', fontSize: '13px', whiteSpace: 'pre-line' },
+    label: { color: '#94a3b8', fontSize: '12px', display: 'block', marginBottom: '6px' },
+    input: { width: '100%', padding: '12px', background: '#020617', border: '1px solid #1e293b', borderRadius: '8px', color: 'white', fontSize: '16px', boxSizing: 'border-box', marginBottom: '12px' },
+    btn: { width: '100%', padding: '14px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' },
+    btnDis: { opacity: 0.5, cursor: 'not-allowed' },
+    divider: { borderTop: '1px solid #1e293b', marginTop: '20px', paddingTop: '16px', textAlign: 'center' },
+    seedBtn: { width: '100%', padding: '12px', background: 'transparent', color: '#94a3b8', border: '1px solid #1e293b', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' },
+    hint: { color: '#64748b', fontSize: '11px', marginTop: '6px', textAlign: 'center' }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-green-950 to-slate-900">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl gradient-green mb-4 pulse-green">
-            <Zap size={40} className="text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-green-400">{MD_CONFIG.brandName}</h1>
-          <p className="text-slate-400 text-sm mt-1">{MD_CONFIG.tagline}</p>
-        </div>
+    <div style={S.page}>
+      <div style={S.wrap}>
+        <div style={S.logo}>⚡</div>
+        <h1 style={S.title}>MD Automobile</h1>
+        <p style={S.sub}>Electric Two-Wheeler Dealership</p>
 
-        <div className="card">
-          <h2 className="text-xl font-bold mb-4">Login</h2>
-          {error && <div className="bg-red-900/30 border border-red-700 text-red-300 p-3 rounded mb-4 text-sm">{error}</div>}
+        <div style={S.card}>
+          <h2 style={S.h2}>Login</h2>
 
-          <div className="space-y-3">
-            <div>
-              <label className="text-xs text-slate-400 mb-1 flex items-center gap-1"><Mail size={12} /> Email / Mobile / Username</label>
-              <input
-                value={form.identifier}
-                onChange={(e) => setForm({ ...form, identifier: e.target.value })}
-                onKeyDown={(e) => { if (e.key === 'Enter') document.getElementById('pwd').focus(); }}
-                placeholder="admin या email या mobile"
-                autoComplete="username"
-                autoFocus
-              />
-            </div>
-            <div>
-              <label className="text-xs text-slate-400 mb-1 flex items-center gap-1"><Lock size={12} /> Password</label>
-              <input
-                id="pwd"
-                type="password"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
-                placeholder="••••••••"
-                autoComplete="current-password"
-              />
-            </div>
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="btn btn-primary w-full flex items-center justify-center gap-2"
-            >
-              {loading ? <Loader className="animate-spin" size={18} /> : 'Login'}
+          {error && <div style={S.errBox}>{error}</div>}
+
+          <form onSubmit={handleLogin}>
+            <label style={S.label}>📧 Email / Mobile / Username</label>
+            <input
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              style={S.input}
+              autoCapitalize="none"
+              autoComplete="username"
+            />
+
+            <label style={S.label}>🔒 Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={S.input}
+              autoComplete="current-password"
+            />
+
+            <button type="submit" disabled={loading} style={{ ...S.btn, ...(loading ? S.btnDis : {}) }}>
+              {loading ? 'Logging in...' : 'Login'}
             </button>
-          </div>
+          </form>
 
-          <div className="border-t border-slate-800 mt-6 pt-4">
-            <p className="text-xs text-slate-500 text-center mb-2">पहली बार setup कर रहे हैं?</p>
-            <button
-              onClick={handleSeedAdmin}
-              disabled={seeding}
-              className="btn btn-ghost w-full flex items-center justify-center gap-2 text-sm"
-            >
-              <UserPlus size={14} /> {seeding ? 'Creating...' : 'Default Admin बनाएं'}
+          <div style={S.divider}>
+            <div style={{ color: '#94a3b8', fontSize: '12px', marginBottom: '8px' }}>पहली बार setup कर रहे हैं?</div>
+            <button onClick={seedAdmin} disabled={seeding} style={{ ...S.seedBtn, ...(seeding ? S.btnDis : {}) }}>
+              {seeding ? 'Creating...' : '👤 Default Admin बनाएं'}
             </button>
-            <p className="text-[10px] text-slate-600 text-center mt-2">
-              यह सिर्फ तब काम करेगा जब database में कोई user नहीं है
-            </p>
+            <div style={S.hint}>यह सिर्फ तब काम करेगा जब database में कोई user नहीं है</div>
           </div>
         </div>
 
-        <div className="text-center mt-6 text-xs text-slate-500">
-          © 2026 {MD_CONFIG.brandName} • Powered by ⚡
+        <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '10px', color: '#475569' }}>
+          MD Automobile PWA • v1.0
         </div>
       </div>
     </div>
