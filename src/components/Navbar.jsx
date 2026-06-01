@@ -203,5 +203,3 @@ export default function Navbar({ user }) {
     </>
   );
 }
-EOF
-echo "Fixed Navbar without require()"
