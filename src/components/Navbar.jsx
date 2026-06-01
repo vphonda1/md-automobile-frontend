@@ -6,12 +6,8 @@ import {
   Lock, Shield, UserCog, Video, Star, Zap
 } from 'lucide-react';
 
-// Try to import MD_CONFIG safely
-let MD_CONFIG = { brandName: 'MD Automobile' };
-try {
-  const cfg = require('../utils/apiConfig');
-  MD_CONFIG = cfg.MD_CONFIG || MD_CONFIG;
-} catch {}
+// Hardcoded brand info (Settings page से dynamic बनाएंगे बाद में)
+const BRAND_NAME = 'MD Automobile';
 
 function lsRemove(key) {
   try { localStorage.removeItem(key); } catch {}
@@ -109,7 +105,6 @@ export default function Navbar({ user }) {
 
   return (
     <>
-      {/* Top bar */}
       <div style={{
         background: '#0f172a', borderBottom: '1px solid #1e293b',
         padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -124,7 +119,7 @@ export default function Navbar({ user }) {
             <Zap size={22} color="white" />
           </div>
           <div>
-            <div style={{ fontWeight: 'bold', color: '#16a34a' }}>{MD_CONFIG.brandName || 'MD Automobile'}</div>
+            <div style={{ fontWeight: 'bold', color: '#16a34a' }}>{BRAND_NAME}</div>
             <div style={{ fontSize: 11, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
               {user?.name || ''}
               {isAdmin && <span style={{ fontSize: 9, background: '#7f1d1d', padding: '2px 4px', borderRadius: 3 }}>ADMIN</span>}
@@ -137,7 +132,6 @@ export default function Navbar({ user }) {
         </button>
       </div>
 
-      {/* Bottom mobile nav */}
       <div className="md:hidden" style={{
         position: 'fixed', bottom: 0, left: 0, right: 0,
         background: '#0f172a', borderTop: '1px solid #1e293b', zIndex: 20,
@@ -161,7 +155,6 @@ export default function Navbar({ user }) {
         ))}
       </div>
 
-      {/* Drawer */}
       {open && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 40, background: 'rgba(0,0,0,0.7)' }} onClick={() => setOpen(false)}>
           <div style={{
@@ -210,3 +203,5 @@ export default function Navbar({ user }) {
     </>
   );
 }
+EOF
+echo "Fixed Navbar without require()"
