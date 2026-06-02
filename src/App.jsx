@@ -25,6 +25,7 @@ const InvoiceManagement = lazy(() => import('./pages/InvoiceManagement'));
 const QuotationsPage = lazy(() => import('./pages/QuotationsPage'));
 const TestRidesPage = lazy(() => import('./pages/TestRidesPage'));
 const FollowupsPage = lazy(() => import('./pages/FollowupsPage'));
+const ExcelImportPage = lazy(() => import('./pages/ExcelImportPage'));
 
 // Service
 const ServiceAppointmentsPage = lazy(() => import('./pages/ServiceAppointmentsPage'));
@@ -110,6 +111,7 @@ function AppShell() {
           <Route path="/quotations" element={<PrivateRoute><QuotationsPage /></PrivateRoute>} />
           <Route path="/test-rides" element={<PrivateRoute><TestRidesPage /></PrivateRoute>} />
           <Route path="/followups" element={<PrivateRoute><FollowupsPage /></PrivateRoute>} />
+          <Route path="/excel-import" element={<PrivateRoute adminOnly><ExcelImportPage /></PrivateRoute>} />
 
           {/* Service */}
           <Route path="/appointments" element={<PrivateRoute><ServiceAppointmentsPage /></PrivateRoute>} />
