@@ -84,6 +84,7 @@ export default function Navbar({ user }) {
       title: 'Admin',
       links: [
         { to: '/admin', icon: Shield, label: 'Admin Panel' },
+        { to: '/excel-import', icon: Receipt, label: '📊 Excel Import' },
         { to: '/staff', icon: UserCog, label: 'Manage Staff' },
         { to: '/salary', icon: Receipt, label: 'Salary' },
         { to: '/settings', icon: Settings, label: 'App Settings' }
