@@ -1,4 +1,5 @@
 // MD Automobile — API Configuration
+import { api, apiFetch } from '../utils/apiConfig';
 export const API_URL = import.meta.env.VITE_API_URL || 'https://md-automobile-backend.onrender.com';
 
 // MD Automobile business constants (UPDATE THESE)
