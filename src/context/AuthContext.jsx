@@ -25,8 +25,8 @@ const defaultValue = {
   logout: () => {},
   verifyAdmin: async () => false,
   changePassword: async () => { throw new Error('AuthProvider missing'); },
-  isAdmin: false,
-  isManager: false
+  isAdmin: () => false,
+  isManager: () => false
 };
 
 const AuthContext = createContext(defaultValue);
@@ -104,8 +104,10 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  const isAdmin = ['owner', 'admin'].includes(user?.role);
-  const isManager = ['owner', 'admin', 'manager'].includes(user?.role);
+  // isAdmin and isManager are FUNCTIONS — callable to get current state.
+  // Note: function references are always truthy, so always CALL them (isAdmin() not isAdmin)
+  const isAdmin = () => ['owner', 'admin'].includes(user?.role);
+  const isManager = () => ['owner', 'admin', 'manager'].includes(user?.role);
 
   const value = { user, login, logout, verifyAdmin, changePassword, isAdmin, isManager };
 
