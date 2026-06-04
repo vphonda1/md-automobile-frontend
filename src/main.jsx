@@ -52,14 +52,96 @@ try {
 
     // Register service worker for PWA (after React mounts)
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js').catch(err => {
+      window.addEventListener('load', async () => {
+        try {
+          const reg = await navigator.serviceWorker.register('/service-worker.js');
+          console.log('[SW] Registered:', reg.scope);
+
+          // Wait until SW is ready and active
+          await navigator.serviceWorker.ready;
+
+          // === Setup WhatsApp-style PUSH NOTIFICATIONS ===
+          setupPushSubscription(reg).catch(err => console.warn('[Push] Setup failed:', err.message));
+        } catch (err) {
           console.warn('SW registration failed:', err);
-        });
+        }
       });
     }
   }
 } catch (err) {
   console.error('[Main] React mount failed:', err);
   showError('React Mount Failed', String(err?.stack || err?.message || err));
+}
+
+// === Push Subscription Setup (called after SW registers) ===
+async function setupPushSubscription(swReg) {
+  try {
+    if (!('PushManager' in window)) {
+      console.warn('[Push] PushManager not supported');
+      return;
+    }
+    // Need to wait until user logs in - get user from localStorage
+    const userStr = localStorage.getItem('md_user');
+    if (!userStr) { console.log('[Push] No user logged in yet'); return; }
+    const user = JSON.parse(userStr);
+
+    // Check current notification permission
+    if (Notification.permission === 'denied') {
+      console.warn('[Push] Permission denied by user');
+      return;
+    }
+    if (Notification.permission === 'default') {
+      const result = await Notification.requestPermission();
+      if (result !== 'granted') { console.log('[Push] Permission not granted'); return; }
+    }
+
+    // Fetch VAPID public key from backend
+    const API_URL = window.MD_API_URL || 'https://md-automobile-backend.onrender.com';
+    let publicKey;
+    try {
+      const r = await fetch(`${API_URL}/api/vapid-public-key`);
+      const d = await r.json();
+      publicKey = d.publicKey;
+    } catch (e) {
+      console.warn('[Push] Failed to fetch VAPID key:', e.message);
+      return;
+    }
+    if (!publicKey) return;
+
+    // Subscribe
+    let sub = await swReg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await swReg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey)
+      });
+      console.log('[Push] New subscription created');
+    } else {
+      console.log('[Push] Existing subscription found');
+    }
+
+    // Send subscription to backend (idempotent)
+    await fetch(`${API_URL}/api/push/subscribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subscription: sub.toJSON(),
+        userId: user._id || user.id,
+        userName: user.name || user.username,
+        device: navigator.userAgent.slice(0, 100)
+      })
+    });
+    console.log('[Push] ✅ Subscription registered with backend');
+  } catch (err) {
+    console.error('[Push] Setup error:', err);
+  }
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
 }
