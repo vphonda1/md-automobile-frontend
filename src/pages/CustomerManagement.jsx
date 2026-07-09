@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Search, Download, Upload, Trash2, Phone, MessageCircle, Edit2 } from 'lucide-react';
-import * as XLSX from 'xlsx','xlsm';
+import * as XLSX from 'xlsx';
 import { api } from '../utils/apiConfig';
 import { formatDate, openWhatsApp, parseUTCDate, toISODate } from '../utils/smartUtils';
 import AdminPasswordModal from '../components/AdminPasswordModal';
