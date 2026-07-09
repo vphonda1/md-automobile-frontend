@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Search, Download, Upload, Trash2, Phone, MessageCircle, Edit2 } from 'lucide-react';
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx','xlxm';
 import { api } from '../utils/apiConfig';
 import { formatDate, openWhatsApp, parseUTCDate, toISODate } from '../utils/smartUtils';
 import AdminPasswordModal from '../components/AdminPasswordModal';
@@ -106,7 +106,7 @@ export default function CustomerManagement() {
           <button onClick={handleExport} className="btn btn-ghost flex items-center gap-1"><Download size={16} /> Export</button>
           <label className="btn btn-ghost flex items-center gap-1 cursor-pointer">
             <Upload size={16} /> Import
-            <input type="file" accept=".xlsx,.xls,.csv" onChange={handleImport} className="hidden" />
+            <input type="file" accept=".xlsx,.xlsm,.xls,.csv" onChange={handleImport} className="hidden" />
           </label>
         </div>
       </div>
